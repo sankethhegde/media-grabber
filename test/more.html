@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Grabber coverage test page</title>
+  <!-- #4: a stream named only in Open Graph data -->
+  <meta property="og:title" content="Coverage test page">
+  <meta property="og:video" content="/test/dash/template.mpd?n=3">
+  <meta property="og:video:type" content="application/dash+xml">
+  <!-- #4: a file named only in schema.org JSON-LD -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        { "@type": "WebPage", "name": "Coverage test page" },
+        {
+          "@type": "VideoObject",
+          "name": "JSON-LD only video",
+          "contentUrl": "/test/video/sample-1080.webm",
+          "thumbnailUrl": "/test/img/picture-500.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ]
+    }
+  </script>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; color: #222; }
+    h2 { margin-top: 32px; font-size: 17px; }
+    .expect { color: #2a7a3b; font-size: 13px; }
+    code { background: #f2f2f2; padding: 1px 4px; border-radius: 3px; }
+    iframe { border: 1px solid #ccc; width: 360px; height: 220px; }
+    #log { font: 12px ui-monospace, monospace; color: #555; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Coverage test page</h1>
+  <p>Open the popup's <strong>Videos</strong> tab. Each section says what should appear.</p>
+
+  <h2>1. Video in an open shadow root (#2)</h2>
+  <open-player data-src="/test/video/sample-720.webm" title="Open shadow root video"></open-player>
+  <p class="expect">Listed as Direct 1280×720; the hover button appears on it.</p>
+
+  <h2>2. Video in a closed shadow root (#2)</h2>
+  <closed-player data-src="/test/video/sample-360.webm" title="Closed shadow root video"></closed-player>
+  <p class="expect">Listed as Direct 640×360.</p>
+
+  <h2>3. Native HLS: <code>&lt;video src="….m3u8"&gt;</code> (#3)</h2>
+  <video id="native-hls" controls muted width="320" title="Native HLS video"></video>
+  <p class="expect">The playlist appears as an HLS entry with qualities (not as a file).</p>
+
+  <h2>4. Video inside an <code>about:blank</code> iframe (#3)</h2>
+  <iframe id="blank-frame" title="about:blank frame"></iframe>
+  <p class="expect">Listed as Direct (the iframe has no URL of its own).</p>
+
+  <h2>5. Page data only (#4)</h2>
+  <p class="expect">"JSON-LD only video" (1920×1080) and, from <code>og:video</code>, a DASH entry.</p>
+
+  <h2>6. Playlist with no extension, served as text/plain (#3)</h2>
+  <p class="expect">Requested by script; appears as an HLS entry after sniffing.</p>
+
+  <h2>7. DASH streams (#1)</h2>
+  <p class="expect">
+    SegmentList (with English subtitles), SegmentTemplate, SegmentBase/sidx: each downloads as one MP4 with picture and sound.
+    DRM manifest: "Protected". Live manifest: "Live stream — not supported".
+  </p>
+
+  <pre id="log"></pre>
+  <script src="more-page.js"></script>
+</body>
+</html>

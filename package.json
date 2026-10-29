@@ -1,0 +1,11 @@
+{
+  "name": "media-grabber",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Dev helpers only. The extension itself has no build step and no dependencies.",
+  "type": "module",
+  "scripts": {
+    "test": "node test/filename.test.js && node test/hls.test.js && node test/dash.test.js && node test/mp4.test.js && node test/vtt.test.js && node test/reasons.test.js",
+    "serve": "node test/serve.js"
+  }
+}

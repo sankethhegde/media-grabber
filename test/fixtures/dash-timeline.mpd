@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SegmentTemplate + SegmentTimeline, separate audio, a WebVTT text track. -->
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static" mediaPresentationDuration="PT0M12.000S" minBufferTime="PT2S">
+  <BaseURL>media/</BaseURL>
+  <Period id="p0">
+    <AdaptationSet contentType="video" mimeType="video/mp4" segmentAlignment="true">
+      <SegmentTemplate timescale="1000" initialization="$RepresentationID$/init.mp4" media="$RepresentationID$/seg-$Time$.m4s">
+        <SegmentTimeline>
+          <S t="0" d="4000" r="1"/>
+          <S d="4000"/>
+        </SegmentTimeline>
+      </SegmentTemplate>
+      <Representation id="v720" bandwidth="2800000" width="1280" height="720" codecs="avc1.64001f" frameRate="30"/>
+      <Representation id="v1080" bandwidth="5000000" width="1920" height="1080" codecs="avc1.640028" frameRate="60000/1001"/>
+    </AdaptationSet>
+    <AdaptationSet contentType="audio" mimeType="audio/mp4" lang="en">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
+      <SegmentTemplate timescale="48000" initialization="$RepresentationID$/init.mp4" media="$RepresentationID$/$Number%05d$.m4s" startNumber="1">
+        <SegmentTimeline><S t="0" d="192000" r="-1"/></SegmentTimeline>
+      </SegmentTemplate>
+      <Representation id="a128" bandwidth="128000" codecs="mp4a.40.2"/>
+    </AdaptationSet>
+    <AdaptationSet contentType="text" mimeType="text/vtt" lang="en">
+      <Label>English &amp; SDH</Label>
+      <Representation id="sub-en" bandwidth="1000"><BaseURL>subs/en.vtt</BaseURL></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

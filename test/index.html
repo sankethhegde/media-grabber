@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Grabber test page</title>
+  <meta property="og:image" content="img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:image" content="img/og.jpg">
+  <link rel="icon" href="img/icon.png?favicon" sizes="32x32">
+  <link rel="apple-touch-icon" href="img/picture-500.jpg?touch-icon">
+  <style>
+    .site-header { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; }
+    .pseudo-icon::before {
+      content: ""; display: inline-block; width: 20px; height: 20px; vertical-align: middle; margin-right: 6px;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M10 1l2.6 6 6.4.5-4.9 4.2 1.5 6.3L10 14.6 4.4 18l1.5-6.3L1 7.5 7.4 7z' fill='%23f59e0b'/></svg>") center / contain no-repeat;
+    }
+    .bg-icon { width: 24px; height: 24px; background: url("img/icon.png?bg-icon") center / contain no-repeat; }
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 860px; margin: 24px auto; padding: 0 16px; color: #222; }
+    h2 { margin-top: 40px; font-size: 17px; }
+    code { background: #f2f2f2; padding: 1px 4px; border-radius: 3px; }
+    img { max-width: 100%; height: auto; display: block; }
+    .bg { width: 100%; height: 220px; background: url("img/background.png") center / cover no-repeat; border-radius: 6px; }
+    .bg-small { width: 80px; height: 80px; background: url("img/background.png") center / cover; }
+    .spacer { height: 1400px; border-left: 3px dashed #ccc; margin: 16px 0; padding-left: 12px; color: #888; }
+    .expect { color: #2a7a3b; font-size: 13px; }
+    .expect.skip { color: #a33; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" aria-label="Test Co home">
+      <svg class="site-logo" width="132" height="32" viewBox="0 0 132 32" role="img" aria-label="Test Co logo">
+        <defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#6d28d9"/><stop offset="1" stop-color="#f97316"/></linearGradient></defs>
+        <rect width="32" height="32" rx="8" fill="url(#lg)"/>
+        <path d="M9 22V10h5a4 4 0 0 1 0 8h-5" fill="none" stroke="#fff" stroke-width="3"/>
+        <text x="40" y="22" font-family="system-ui, sans-serif" font-size="16" font-weight="700" fill="currentColor">Test Co</text>
+      </svg>
+    </a>
+    <span class="pseudo-icon">CSS ::before icon</span>
+    <div class="bg-icon" aria-label="Background icon"></div>
+  </header>
+
+  <h1>Media Grabber test page</h1>
+  <p>Open the Media Grabber popup on this page. Each section says what the popup should list.</p>
+  <p class="expect">
+    Header: the inline SVG logo (LOGO badge, saves as .svg), the CSS ::before star (ICON) and the small background
+    icon (ICON). Plus the page's favicon and touch icon (ICON). "Show: Logos &amp; icons" lists just these.
+  </p>
+
+  <h2>1. <code>&lt;img srcset&gt;</code> with w descriptors (IMG-1, IMG-5)</h2>
+  <img alt="Srcset sample" src="img/srcset-400.jpg"
+       srcset="img/srcset-400.jpg 400w, img/srcset-800.jpg 800w, img/srcset-1600.jpg 1600w"
+       sizes="(max-width: 600px) 100vw, 600px" width="600" height="400">
+  <p class="expect">Expect one entry, qualities 1600w / 800w / 400w, default 1600w.</p>
+
+  <h2>2. <code>&lt;img srcset&gt;</code> with x descriptors</h2>
+  <img alt="Density sample" src="img/srcset-400.jpg" srcset="img/srcset-400.jpg 1x, img/srcset-800.jpg 2x" width="400" height="267">
+  <p class="expect">Expect one entry with 2x and 1x. (Its URLs overlap entry 1, so it is merged into it.)</p>
+
+  <h2>3. <code>&lt;picture&gt;</code> sources (IMG-2)</h2>
+  <picture>
+    <source media="(min-width: 900px)" srcset="img/picture-1000.jpg">
+    <source srcset="img/picture-500.jpg 500w, img/picture-1000.jpg 1000w">
+    <img alt="Picture element sample" src="img/picture-500.jpg" width="500" height="281">
+  </picture>
+  <p class="expect">Expect one entry with 1000w and 500w.</p>
+
+  <h2>4. CSS backgrounds (IMG-3)</h2>
+  <div class="bg" aria-label="Background banner"></div>
+  <p class="expect">Expect "Background banner", 900 × 400.</p>
+  <div class="bg-small"></div>
+  <p class="expect">The 80×80 box uses the same file, so it merges into "Background banner" rather than adding an entry.</p>
+
+  <h2>5. Meta tags (IMG-4)</h2>
+  <p class="expect">Expect og:image (1200 × 630) listed once even though twitter:image repeats it.</p>
+
+  <h2>6. Small images, and what is still skipped (IMG-6)</h2>
+  <img alt="tracking pixel" src="img/pixel.gif" width="1" height="1">
+  <img alt="tiny inline 1x1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+  <img alt="Tiny inline square" width="16" height="16"
+       src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><rect width='16' height='16' rx='3' fill='%2310b981'/></svg>">
+  <img alt="Duplicate of srcset sample" src="img/srcset-1600.jpg" width="300">
+  <p class="expect skip">The two 1×1 pixels are still skipped (tracking pixels). The duplicate URL merges into entry 1.</p>
+  <p class="expect">The 16×16 inline square is listed (small images are no longer dropped).</p>
+  <img alt="Small icon" src="img/icon.png" width="32" height="32">
+  <p class="expect">A 32×32 icon is listed with an ICON badge; "Min ≥ 50 px" hides it and "Max ≤ 64 px" shows only small ones.</p>
+  <svg width="160" height="90" aria-label="SVG image element"><image href="img/og.jpg?svg-image" width="160" height="90"/></svg>
+  <input type="image" src="img/picture-500.jpg?input-image" alt="Image button" width="120">
+  <p class="expect">An SVG &lt;image&gt; and an &lt;input type="image"&gt; are listed too.</p>
+
+  <h2>7. blob: and data: images (IMG-8)</h2>
+  <img id="blob-img" alt="Canvas blob image" width="320" height="180">
+  <img id="data-img" alt="Canvas data URL image" width="320" height="180">
+  <p class="expect">Expect both, with thumbnails; both download as PNG files.</p>
+
+  <h2>8. Lazy-loaded and injected images (IMG-7)</h2>
+  <p>An image is added to the page 3 seconds after load. Scroll down for the lazy images.</p>
+  <div id="injected"></div>
+  <div class="spacer">Scroll down…</div>
+  <img alt="Lazy native" src="img/lazy-1.jpg" loading="lazy" width="600" height="400">
+  <img alt="Lazy data-src" class="js-lazy" data-src="img/lazy-2.jpg"
+       src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="300" height="300">
+  <p class="expect">Both appear in the popup (reopen after scrolling).</p>
+
+  <h2>9. Video with three sources (VID-1)</h2>
+  <video controls width="480" poster="img/picture-500.jpg?poster" title="Three-source sample">
+    <source src="video/sample-1080.webm" type="video/webm" size="1080">
+    <source src="video/sample-720.webm" type="video/webm" size="720">
+    <source src="video/sample-360.webm" type="video/webm" size="360">
+  </video>
+  <p class="expect">Expect one Direct entry with 1080p / 720p / 360p and file sizes (VID-5). Hover it: the download button appears top-right.</p>
+
+  <h2>10. Plain <code>&lt;video src&gt;</code> without a poster</h2>
+  <video controls muted width="320" src="video/sample-360.webm" title="Plain src sample"></video>
+  <p class="expect">Expect a Direct entry with a first-frame thumbnail once the video has loaded.</p>
+
+  <h2>11. MediaSource stream (VID-4)</h2>
+  <video id="mse-video" controls width="320" title="MediaSource stream"></video>
+  <p class="expect">Expect "Streamed" with no download button (it plays from a <code>blob:</code> URL).</p>
+
+  <h2>12. Simulated DRM</h2>
+  <video id="drm-video" controls width="320" src="video/sample-720.webm" title="Simulated DRM video"></video>
+  <p class="expect">The page fires an <code>encrypted</code> event on this video, as EME players do. Expect "Protected — not downloadable" and no download from the popup or hover button.</p>
+
+  <h2>13. Video thumbnails (not images)</h2>
+  <div style="position:relative;width:320px;height:180px">
+    <video muted width="320" height="180" src="video/sample-360.webm" title="Video under an overlay"></video>
+    <img alt="Poster overlay" src="img/lazy-1.jpg?overlay" style="position:absolute;inset:0;width:320px;height:180px">
+  </div>
+  <a href="https://www.youtube.com/watch?v=aqz-KE-bpKQ"><img alt="Linked video thumb" src="img/srcset-400.jpg?watch-link" width="200"></a>
+  <a href="/videos/12345"><img alt="Video page thumb" src="img/srcset-400.jpg?videos-link" width="200"></a>
+  <div class="video-thumbnail"><img alt="Thumb by class" src="img/srcset-400.jpg?thumb-class" width="200"></div>
+  <div class="vjs-poster" style="width:200px;height:112px;background-image:url(img/background.png?vjs)"></div>
+  <p class="expect">None of these appear under Images: the poster of section 9, an overlay on a video, links to video pages and player thumbnails. The videos still appear under Videos.</p>
+
+  <script src="test-page.js"></script>
+</body>
+</html>

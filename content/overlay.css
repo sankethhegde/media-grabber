@@ -1,0 +1,4 @@
+/* Media Grabber — page-level styles.
+   The hover download button (Phase 2) renders inside a Shadow DOM with its own
+   styles; this file only positions its host element, so site CSS cannot reach
+   the button itself. Intentionally empty in Phase 1. */

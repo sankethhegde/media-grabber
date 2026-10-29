@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- SegmentList with byte ranges (video) and SegmentBase with a sidx index (audio). -->
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static" mediaPresentationDuration="PT18S">
+  <Period>
+    <AdaptationSet mimeType="video/mp4">
+      <Representation id="v" bandwidth="3000000" width="1280" height="720" codecs="avc1.640020">
+        <BaseURL>https://cdn.example.net/v/main.mp4</BaseURL>
+        <SegmentList timescale="1" duration="6">
+          <Initialization range="0-719"/>
+          <SegmentURL mediaRange="720-1719"/>
+          <SegmentURL mediaRange="1720-3719"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet mimeType="audio/mp4">
+      <Representation id="a" bandwidth="96000" codecs="mp4a.40.2">
+        <BaseURL>audio.mp4</BaseURL>
+        <SegmentBase indexRange="616-711"><Initialization range="0-615"/></SegmentBase>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

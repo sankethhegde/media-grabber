@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Grabber settings</title>
+  <link rel="stylesheet" href="options.css">
+  <script type="module" src="options.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="head">
+      <img src="../icons/icon.svg" alt="" width="40" height="40">
+      <div>
+        <h1>Media Grabber settings</h1>
+        <p class="sub">Changes save automatically.</p>
+      </div>
+      <span class="saved" id="saved" aria-live="polite"></span>
+    </header>
+
+    <section class="card">
+      <h2>On-page download button</h2>
+      <label class="switch-row">
+        <span>
+          <strong>Show the hover download button</strong>
+          <small>Appears in the corner of images 200 × 200 px or larger, and of videos, when you rest the cursor on them.</small>
+        </span>
+        <input type="checkbox" id="hoverButton" role="switch">
+      </label>
+
+      <div class="sub-block">
+        <strong>Hidden on these sites</strong>
+        <small>Subdomains are included, so <code>example.com</code> also covers <code>shop.example.com</code>.</small>
+        <ul class="site-list" id="site-list"></ul>
+        <form class="add-site" id="add-site">
+          <input type="text" id="site-input" placeholder="example.com" autocomplete="off" spellcheck="false" aria-label="Site to hide the button on">
+          <button type="submit" class="btn">Add site</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Listing</h2>
+      <label class="field-row">
+        <span>
+          <strong>Minimum image size to list</strong>
+          <small>Images whose longest side is smaller than this never appear in the popup. 0 lists everything.</small>
+        </span>
+        <span class="input-unit"><input type="number" id="minImageSize" min="0" max="10000" step="10"> px</span>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>Saving files</h2>
+      <label class="field-row stacked">
+        <span>
+          <strong>Filename pattern</strong>
+          <small>Tokens: <code>{site}</code> <code>{title}</code> <code>{quality}</code> <code>{ext}</code>. Unsafe characters are removed and names are capped at 150 characters.</small>
+        </span>
+        <input type="text" id="filenamePattern" spellcheck="false">
+        <span class="preview">Example: <code id="pattern-preview"></code></span>
+      </label>
+      <label class="switch-row">
+        <span>
+          <strong>Ask where to save each file</strong>
+          <small>Shows the Save As dialog for single downloads. Bulk downloads always go straight to a dated folder.</small>
+        </span>
+        <input type="checkbox" id="askWhereToSave" role="switch">
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>Streams (HLS and DASH)</h2>
+      <label class="switch-row">
+        <span>
+          <strong>Convert HLS to MP4</strong>
+          <small>Off saves TS-based HLS streams as a single <code>.ts</code> file. DASH and fMP4 streams are always <code>.mp4</code>.</small>
+        </span>
+        <input type="checkbox" id="convertHlsToMp4" role="switch">
+      </label>
+      <label class="switch-row">
+        <span>
+          <strong>Save subtitles</strong>
+          <small>When a stream carries WebVTT subtitles, save each language as a <code>.vtt</code> file next to the video.</small>
+        </span>
+        <input type="checkbox" id="saveSubtitles" role="switch">
+      </label>
+      <label class="field-row">
+        <span>
+          <strong>Max parallel segment downloads</strong>
+          <small>1–10. Higher is faster but some servers throttle it.</small>
+        </span>
+        <span class="input-unit"><input type="number" id="maxParallelSegments" min="1" max="10" step="1"></span>
+      </label>
+    </section>
+
+    <footer class="foot">
+      <button class="btn ghost" id="reset">Reset to defaults</button>
+      <span>Download only content you have the right to save.</span>
+    </footer>
+  </main>
+</body>
+</html>

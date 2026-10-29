@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Media Grabber</title>
+  <link rel="stylesheet" href="popup.css">
+  <script type="module" src="popup.js"></script>
+</head>
+<body>
+  <!-- Shared download glyph (arrow into a tray), reused by every download button. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="glyph-download" viewBox="0 0 128 128">
+      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M64 18V78" stroke-width="16"/>
+        <path d="M38 54L64 80L90 54" stroke-width="16"/>
+        <path d="M24 82V96C24 104 30 110 38 110H90C98 110 104 104 104 96V82" stroke-width="13"/>
+      </g>
+    </symbol>
+    <symbol id="glyph-lock" viewBox="0 0 16 16">
+      <path fill="currentColor" d="M5 7V5a3 3 0 0 1 6 0v2h.5A1.5 1.5 0 0 1 13 8.5v5A1.5 1.5 0 0 1 11.5 15h-7A1.5 1.5 0 0 1 3 13.5v-5A1.5 1.5 0 0 1 4.5 7H5Zm1.5 0h3V5a1.5 1.5 0 0 0-3 0v2Z"/>
+    </symbol>
+    <symbol id="glyph-gear" viewBox="0 0 16 16">
+      <path fill="currentColor" d="M9.4 1.2a.8.8 0 0 0-.8-.7H7.4a.8.8 0 0 0-.8.7l-.2 1.3a5.6 5.6 0 0 0-1.3.7l-1.2-.5a.8.8 0 0 0-1 .3l-.6 1a.8.8 0 0 0 .2 1.1l1 .8a5.6 5.6 0 0 0 0 1.5l-1 .8a.8.8 0 0 0-.2 1.1l.6 1a.8.8 0 0 0 1 .3l1.2-.5c.4.3.8.5 1.3.7l.2 1.3c.1.4.4.7.8.7h1.2c.4 0 .7-.3.8-.7l.2-1.3c.5-.2.9-.4 1.3-.7l1.2.5a.8.8 0 0 0 1-.3l.6-1a.8.8 0 0 0-.2-1.1l-1-.8a5.6 5.6 0 0 0 0-1.5l1-.8a.8.8 0 0 0 .2-1.1l-.6-1a.8.8 0 0 0-1-.3l-1.2.5a5.6 5.6 0 0 0-1.3-.7l-.2-1.3ZM8 10.3a2.3 2.3 0 1 1 0-4.6 2.3 2.3 0 0 1 0 4.6Z"/>
+    </symbol>
+    <symbol id="glyph-play" viewBox="0 0 16 16">
+      <path fill="currentColor" d="M5 3.5v9a.5.5 0 0 0 .8.4l7-4.5a.5.5 0 0 0 0-.8l-7-4.5a.5.5 0 0 0-.8.4Z"/>
+    </symbol>
+  </svg>
+
+  <header class="header">
+    <div class="brand">
+      <img src="../icons/icon.svg" alt="" width="22" height="22">
+      <span>Media Grabber</span>
+      <button class="icon-btn" id="open-settings" title="Settings" aria-label="Settings">
+        <svg width="16" height="16"><use href="#glyph-gear"/></svg>
+      </button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-images" data-tab="images" aria-selected="true">
+        Images <span class="count" id="count-images">0</span>
+      </button>
+      <button class="tab" role="tab" id="tab-videos" data-tab="videos" aria-selected="false">
+        Videos <span class="count" id="count-videos">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <div class="update-banner" id="update-banner" role="alert" hidden>
+    <span><strong>Media Grabber was updated.</strong> Reload it to finish. Video detection and the hover button need the new version.</span>
+    <button class="btn-dl" id="reload-extension"><span class="label">Reload extension</span></button>
+  </div>
+
+  <!-- Active stream downloads (HLS): progress, speed, cancel / retry -->
+  <section class="jobs" id="jobs" aria-label="Stream downloads" hidden></section>
+
+  <section class="toolbar" id="toolbar">
+    <label class="field">
+      <span>Show</span>
+      <select id="filter-show">
+        <option value="all">All images</option>
+        <option value="logos">Logos &amp; icons</option>
+        <option value="other">Without logos &amp; icons</option>
+      </select>
+    </label>
+    <!-- Sizes are the image's longest side, in pixels. -->
+    <label class="field">
+      <span>Min</span>
+      <select id="filter-size" title="Smallest size to show (longest side)">
+        <option value="0">Any</option>
+        <option value="16">≥ 16 px</option>
+        <option value="50">≥ 50 px</option>
+        <option value="100">≥ 100 px</option>
+        <option value="200">≥ 200 px</option>
+        <option value="300">≥ 300 px</option>
+        <option value="500">≥ 500 px</option>
+        <option value="800">≥ 800 px</option>
+        <option value="1000">≥ 1000 px</option>
+        <option value="1500">≥ 1500 px</option>
+        <option value="2000">≥ 2000 px</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Max</span>
+      <select id="filter-max" title="Largest size to show (longest side)">
+        <option value="0">Any</option>
+        <option value="64">≤ 64 px</option>
+        <option value="100">≤ 100 px</option>
+        <option value="200">≤ 200 px</option>
+        <option value="300">≤ 300 px</option>
+        <option value="500">≤ 500 px</option>
+        <option value="800">≤ 800 px</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Type</span>
+      <select id="filter-type">
+        <option value="all">All</option>
+        <option value="jpg">JPG</option>
+        <option value="png">PNG</option>
+        <option value="webp">WEBP</option>
+        <option value="gif">GIF</option>
+        <option value="svg">SVG</option>
+        <option value="avif">AVIF</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label class="select-all">
+      <input type="checkbox" id="select-all"> Select all
+    </label>
+  </section>
+
+  <main class="content" id="content">
+    <ul class="list" id="list-images" role="tabpanel" aria-labelledby="tab-images"></ul>
+    <ul class="list" id="list-videos" role="tabpanel" aria-labelledby="tab-videos" hidden></ul>
+    <p class="empty" id="empty" hidden>No media found on this page. Try scrolling or playing the video, then reopen.</p>
+    <p class="empty" id="message" hidden></p>
+  </main>
+
+  <div class="actionbar" id="actionbar">
+    <button class="btn-dl big" id="download-selected" disabled>
+      <svg class="glyph"><use href="#glyph-download"/></svg>
+      <span class="label">Download selected</span>
+    </button>
+    <span class="selection-note" id="selection-note">Tick images to download several at once</span>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="footer">Download only content you have the right to save.</footer>
+</body>
+</html>
